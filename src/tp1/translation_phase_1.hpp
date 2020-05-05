@@ -10,7 +10,7 @@ private:
     static unsigned int NUM_EXEC;
 
 public:
-    TP1();
+    TP1(std::string& src);
 
     bool execute(const char* filename);
 
@@ -19,7 +19,7 @@ private:
     void replaceTrigraphSequence();
     void outputResult(const char* filename) const;
 
-    std::string mSrc;
+    std::string& mSrc;
 
     bool mIsValid;
 };

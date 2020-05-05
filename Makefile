@@ -7,11 +7,13 @@ APPNAME = compiler
 APPDIR = app/
 SRCDIR = src/
 TP1DIR = tp1/
+TP2DIR = tp2/
 
-ALLOBJS = $(OBJS) $(TP1OBJS)
+ALLOBJS = $(OBJS) $(TP1OBJS) $(TP2OBJS)
 
 OBJS    = $(patsubst %.cpp, %.o, $(wildcard $(SRCDIR)*.cpp))
 TP1OBJS = $(patsubst %.cpp, %.o, $(wildcard $(SRCDIR)$(TP1DIR)*.cpp))
+TP2OBJS = $(patsubst %.cpp, %.o, $(wildcard $(SRCDIR)$(TP2DIR)*.cpp))
 
 all: $(APPNAME)
 

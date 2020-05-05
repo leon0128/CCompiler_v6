@@ -16,8 +16,8 @@ const std::unordered_map<char, char> TP1::TRIGPAPH_MAP
 
 unsigned int TP1::NUM_EXEC = 0;
 
-TP1::TP1():
-    mSrc(),
+TP1::TP1(std::string& str):
+    mSrc(str),
     mIsValid(true)
 {
 }
@@ -70,7 +70,7 @@ void TP1::replaceTrigraphSequence()
 
 void TP1::outputResult(const char* filename) const
 {
-    std::string resFilename = "res/tr1_";
+    std::string resFilename = "res/tp1_";
     resFilename += std::to_string(NUM_EXEC);
     resFilename += ".log";
 
@@ -82,8 +82,7 @@ void TP1::outputResult(const char* filename) const
                 ">> filename: " << filename << "\n"
                 ">> NUM_EXEC: " << NUM_EXEC << "\n"
                 ">> result:\n"
-             << mSrc
-             << std::endl;
+             << mSrc;
         fstr.close();
     }
     else

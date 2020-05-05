@@ -1,8 +1,10 @@
 #include "compiler.hpp"
 #include "tp1/translation_phase_1.hpp"
+#include "tp2/translation_phase_2.hpp"
 #include <iostream>
 
 Compiler::Compiler():
+    mSrc(),
     mIsValid(true)
 {
 
@@ -19,8 +21,14 @@ bool Compiler::execute(int argc, char** argv)
 
     if(mIsValid)
     {
-        TP1 tp1;
+        TP1 tp1(mSrc);
         mIsValid = tp1.execute(argv[1]);
+    }
+
+    if(mIsValid)
+    {
+        TP2 tp2(mSrc);
+        mIsValid = tp2.execute();
     }
 
     return mIsValid;
