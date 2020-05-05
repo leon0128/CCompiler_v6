@@ -1,4 +1,4 @@
-#pragma once
+    #pragma once
 
 class Compiler
 {
@@ -9,5 +9,7 @@ public:
     bool execute(int argc, char** argv);
 
 private:
+    void checkArgs(int argc);
+
     bool mIsValid;
 };
