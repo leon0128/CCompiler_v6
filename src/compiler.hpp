@@ -1,6 +1,9 @@
 #pragma once
 
 #include <string>
+#include <vector>
+
+struct TP3Token;
 
 class Compiler
 {
@@ -14,6 +17,7 @@ private:
     void checkArgs(int argc);
 
     std::string mSrc;
+    std::vector<TP3Token*> mTP3TokenVec;
 
     bool mIsValid;
 };

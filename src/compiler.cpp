@@ -1,18 +1,18 @@
 #include "compiler.hpp"
 #include "tp1/translation_phase_1.hpp"
 #include "tp2/translation_phase_2.hpp"
+#include "tp3/translation_phase_3.hpp"
 #include <iostream>
 
 Compiler::Compiler():
     mSrc(),
+    mTP3TokenVec(),
     mIsValid(true)
 {
-
 }
 
 Compiler::~Compiler()
 {
-
 }
 
 bool Compiler::execute(int argc, char** argv)
@@ -29,6 +29,12 @@ bool Compiler::execute(int argc, char** argv)
     {
         TP2 tp2(mSrc);
         mIsValid = tp2.execute();
+    }
+
+    if(mIsValid)
+    {
+        TP3 tp3(mSrc, mTP3TokenVec);
+        mIsValid = tp3.execute();
     }
 
     return mIsValid;
