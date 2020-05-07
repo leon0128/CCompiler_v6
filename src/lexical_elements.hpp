@@ -88,7 +88,7 @@ private:
     //static std::vector<BaseToken*> ALLOC_BASE_TOKEN_VEC;
 
 public:
-    virtual ~BaseToken();
+    virtual ~BaseToken() = default;
 };
 
 // TP3Token
@@ -99,7 +99,7 @@ M_CREATE_TOKEN_STRUCT
                  WHITE_SPACE),
     M_CREATE_UNION(ppToken(nullptr),
                    PreprocessingToken* ppToken;
-                   int numSpace;)
+                   unsigned int numSpace;)
 )
 
 // CChar

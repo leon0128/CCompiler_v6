@@ -1,4 +1,4 @@
-CXX      = g++-9
+CXX      = g++-8
 CXXFLAGS = -std=c++17 $(DEBFLAGS)
 DEBFLAGS = -g3 -Wall
 
