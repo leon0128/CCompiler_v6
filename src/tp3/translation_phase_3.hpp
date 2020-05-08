@@ -21,6 +21,8 @@ private:
     PreprocessingToken* getPPToken(){return nullptr;}    
     
 
+    char getChar(std::size_t idx) const;
+
     const std::string& mSrc;
     std::size_t mIdx;
     std::vector<TP3Token*>& mTP3TokenVec;

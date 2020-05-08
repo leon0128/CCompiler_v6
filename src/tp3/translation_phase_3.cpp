@@ -52,5 +52,54 @@ TP3Token* TP3::getTP3Token()
 
 unsigned int TP3::getWhiteSpace()
 {
-    
+    unsigned int retval = 0;
+    bool isContinued = true;
+
+    while(isContinued)
+    {
+        char c = getChar(mIdx);
+        if(c == ' ' ||
+           c == '\t' ||
+           c == '\v' ||
+           c == '\f')
+        {
+            retval++;
+            mIdx++;
+        }
+        else
+        {
+            char nc = getChar(mIdx + 1);
+            if(c == '/' &&
+               nc == '*')
+            {
+                auto endpos = mSrc.find("*/", mIdx + 2);
+                if(endpos != std::string::npos)
+                {
+                    retval++;
+                    mIdx = endpos + 2;
+                }
+                else
+                {
+                    std::cout << "TP3 warning:\n"
+                                 "    what: "
+                }
+            }
+        }
+    }
+}
+
+char TP3::getChar(std::size_t idx) const
+{
+    char retval = 0;
+
+    try
+    {
+        retval = mSrc.at(mIdx);
+    }
+    catch(const std::out_of_range&)
+    {
+        retval = 0;       
+    }
+
+    return retval;
 }
