@@ -43,14 +43,16 @@ private:
     CharacterConstant* getCharacterConstant();
     EscapeSequence* getEscapeSequence();
     HeaderName* getHeaderName();
-    HexadecimalEscapeSequence* getHexadecimalEscapeSequence(){return nullptr;}
+    HexadecimalEscapeSequence* getHexadecimalEscapeSequence();
     Identifier* getIdentifier();
-    OctalEscapeSequence* getOctalEscapeSequence(){return nullptr;}
+    OctalEscapeSequence* getOctalEscapeSequence();
     PPNumber* getPPNumber();
     PreprocessingToken* getPPToken();
     Punctuator* getPunctuator();
+    SChar* getSChar();
+    SCharSequence* getSCharSequence();
     SimpleEscapeSequence* getSimpleEscapeSequence();
-    StringLiteral* getStringLiteral(){return nullptr;}
+    StringLiteral* getStringLiteral();
 
     char getChar(std::size_t idx) const {return idx < mSrc.size() ? mSrc[idx] : 0;}
 

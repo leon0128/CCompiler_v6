@@ -63,6 +63,15 @@
             tag(NONE){}\
     };
 
+#define M_CREATE_TOKEN_STRUCT_ANY_MEMBER(class_name, elements, initializer) \
+    struct class_name : public BaseToken\
+    {\
+        elements\
+        class_name():\
+            BaseToken(),\
+            initializer{}\
+    };
+
 struct BaseToken;
 struct TP3Token;
 
@@ -173,13 +182,23 @@ struct HeaderName : public BaseToken
 };
 
 // HexadecimalEscapeSequence
-M_CREATE_TOKEN_STRUCT_STRING(HexadecimalEscapeSequence)
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    HexadecimalEscapeSequence,
+    unsigned char value;,
+    value(0)
+)
 
 // Identifier
 M_CREATE_TOKEN_STRUCT_STRING(Identifier)
 
 // OctalEscapeSequence
-M_CREATE_TOKEN_STRUCT_STRING(OctalEscapeSequence)
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    OctalEscapeSequence,
+    unsigned char value;,
+    value(0)
+)
 
 // PPNumber
 M_CREATE_TOKEN_STRUCT_STRING(PPNumber)
@@ -293,17 +312,9 @@ M_CREATE_TOKEN_STRUCT_TAG
 )
 
 // StringLiteral
-struct StringLiteral : public BaseToken
-{
-    M_CREATE_TAG(u8,
-                 u,
-                 U,
-                 L)
-    
-    SCharSequence* sCharSequence;
-
-    StringLiteral():
-        BaseToken(),
-        tag(NONE),
-        sCharSequence(nullptr){}
-};
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    StringLiteral,
+    SCharSequence* sCharSequence;,
+    sCharSequence(nullptr)
+)

@@ -3,6 +3,8 @@
 #include <iostream>
 #include <fstream>
 #include <utility>
+#include <cstdint>
+#include <array>
 
 unsigned int TP3::NUM_EXEC = 0;
 const std::unordered_map<std::string, int> TP3::PUNCTUATOR_MAP
@@ -398,6 +400,60 @@ HeaderName* TP3::getHeaderName()
     }
 }
 
+HexadecimalEscapeSequence* TP3::getHexadecimalEscapeSequence()
+{
+    char arr[4];
+    for(std::size_t i = 0; i < 4; i++)
+        arr[i] = getChar(mIdx + i);
+
+    unsigned char val = 0;
+    bool isValid = true;
+    auto befidx = mIdx;
+
+    if(arr[0] == '\\' &&
+       arr[1] == 'x')
+    {
+        mIdx += 2;
+        for(int i = 2; i < 4; i++)
+        {
+            if(arr[i] >= '0' && arr[i] <= '9')
+            {
+                val = val * 16 + (arr[i] - '0');
+                mIdx++;
+            }
+            else if(arr[i] >= 'a' && arr[i] <= 'f')
+            {
+                val = val * 16 + (arr[i] - 'a');
+                mIdx++;
+            }
+            else if(arr[i] >= 'A' && arr[i] <= 'F')
+            {
+                val = val * 16 + (arr[i] - 'A');
+                mIdx++;
+            }
+            else if(i == 2)
+            {
+                isValid = false;
+                break;
+            }
+        }
+    }
+    else
+        isValid = false;
+
+    if(isValid)
+    {
+        HexadecimalEscapeSequence* retval = new HexadecimalEscapeSequence();
+        retval->value = val;
+        return retval;
+    }
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
+}
+
 Identifier* TP3::getIdentifier()
 {
     std::string sequence;
@@ -426,6 +482,48 @@ Identifier* TP3::getIdentifier()
     {
         Identifier* retval = new Identifier();
         retval->sequence = std::move(sequence);
+        return retval;
+    }
+    else
+        return nullptr;
+}
+
+OctalEscapeSequence* TP3::getOctalEscapeSequence()
+{
+    char c = getChar(mIdx);
+    char nc = getChar(mIdx + 1);
+
+    unsigned char val = 0;
+    bool isValid = true;
+
+    if(c == '\\' &&
+       (nc >= '0' && nc <= '7'))
+    {
+        mIdx += 2;
+        val = nc - '0';
+
+        for(int i = 0; i < 2; i++)
+        {
+            c = getChar(mIdx);
+            if(c >= '0' && c <= '7')
+            {
+                if(static_cast<unsigned int>(val) * 8 + static_cast<unsigned int>(c - '0') <= UINT8_MAX)
+                {
+                    val = val * 8 + (c - '0');
+                    mIdx++;
+                }
+            }
+            else
+                break;
+        }
+    }
+    else
+        isValid = false;
+
+    if(isValid)
+    {
+        OctalEscapeSequence* retval = new OctalEscapeSequence();
+        retval->value = val;
         return retval;
     }
     else
@@ -576,6 +674,70 @@ SimpleEscapeSequence* TP3::getSimpleEscapeSequence()
     }
     else
         return nullptr;
+}
+
+SChar* TP3::getSChar()
+{
+    SChar retval;
+    char c = getChar(mIdx);
+
+    if(c != '"' &&
+       c != '\\' &&
+       c != '\n')
+    {
+        mIdx++;
+        retval.uni.anyMember = c;
+        retval.tag = SChar::ANY_MEMBER;
+    }
+    else if((retval.uni.escapeSequence = getEscapeSequence()) != nullptr)
+        retval.tag = SChar::ESCAPE_SEQUENCE;
+    
+    return retval.tag != SChar::NONE ? new SChar(retval) : nullptr;
+}
+
+SCharSequence* TP3::getSCharSequence()
+{
+    std::vector<SChar*> scVec;
+
+    for(auto sc = getSChar(); sc != nullptr; sc = getSChar())
+        scVec.push_back(sc);
+
+    if(!scVec.empty())
+    {
+        SCharSequence* retval = new SCharSequence();
+        retval->sCharVec = std::move(scVec);
+        return retval;
+    }
+    else
+        return nullptr;
+}
+
+StringLiteral* TP3::getStringLiteral()
+{
+    StringLiteral retval;
+
+    bool isValid = true;
+    auto befidx = mIdx;
+
+    if(getChar(mIdx) == '"')
+    {
+        mIdx++;
+        retval.sCharSequence = getSCharSequence();
+        if(getChar(mIdx) == '"')
+            mIdx++;
+        else
+            isValid = false;
+    }
+    else
+        isValid = false;
+
+    if(isValid)
+        return new StringLiteral(retval);
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
 }
 
 void TP3::outputResult() const
