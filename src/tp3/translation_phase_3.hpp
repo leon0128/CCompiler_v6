@@ -2,13 +2,33 @@
 
 #include <string>
 #include <vector>
+#include <unordered_map>
 
 struct TP3Token;
 
+struct CChar;
+struct CCharSequence;
+struct CharacterConstant;
+struct EscapeSequence;
+struct HeaderName;
+struct HexadecimalEscapeSequence;
+struct Identifier;
+struct OctalEscapeSequence;
+struct PPNumber;
 struct PreprocessingToken;
+struct Punctuator;
+struct SChar;
+struct SCharSequence;
+struct SimpleEscapeSequence;
+struct StringLiteral;
 
 class TP3
 {
+private:
+    static unsigned int NUM_EXEC;
+    static const std::unordered_map<std::string, int> PUNCTUATOR_MAP;
+    static const std::unordered_map<char, int> ESCAPE_SEQUENCE_MAP;
+
 public:
     TP3(const std::string& src,
         std::vector<TP3Token*>& tp3TokenVec);
@@ -18,10 +38,23 @@ public:
 private:
     TP3Token* getTP3Token();
     unsigned int getWhiteSpace();
-    PreprocessingToken* getPPToken(){return nullptr;}    
-    
+    CChar* getCChar();
+    CCharSequence* getCCharSequence();
+    CharacterConstant* getCharacterConstant();
+    EscapeSequence* getEscapeSequence();
+    HeaderName* getHeaderName();
+    HexadecimalEscapeSequence* getHexadecimalEscapeSequence(){return nullptr;}
+    Identifier* getIdentifier();
+    OctalEscapeSequence* getOctalEscapeSequence(){return nullptr;}
+    PPNumber* getPPNumber();
+    PreprocessingToken* getPPToken();
+    Punctuator* getPunctuator();
+    SimpleEscapeSequence* getSimpleEscapeSequence();
+    StringLiteral* getStringLiteral(){return nullptr;}
 
-    char getChar(std::size_t idx) const;
+    char getChar(std::size_t idx) const {return idx < mSrc.size() ? mSrc[idx] : 0;}
+
+    void outputResult() const;
 
     const std::string& mSrc;
     std::size_t mIdx;

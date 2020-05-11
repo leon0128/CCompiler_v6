@@ -2,9 +2,10 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #define M_CREATE_TAG(...) \
-    enum Tag\
+    enum Tag : int\
     {\
         NONE,\
         __VA_ARGS__\
@@ -80,7 +81,17 @@ struct SChar;
 struct SCharSequence;
 struct SimpleEscapeSequence;
 struct StringLiteral;
-struct UniversalCharacterName;
+
+template<typename Tag>
+bool unexpectedEnumerationError(const char* class_name, Tag tag)
+{
+    std::cout << "implementation error:\n"
+                 "    what: unexpected enumration.\n"
+                 "    class: " << class_name << "\n"
+                 "    tag: " << tag
+              << std::endl;
+    return false;
+}
 
 struct BaseToken
 {
@@ -115,7 +126,7 @@ M_CREATE_TOKEN_STRUCT
 
 // CCharSequence
 M_CREATE_TOKEN_STRUCT_VECTOR(CCharSequence,
-                             CChar,
+                             CChar*,
                              cCharVec)
 
 // CharacterConstant
@@ -140,13 +151,11 @@ M_CREATE_TOKEN_STRUCT
     EscapeSequence,
     M_CREATE_TAG(SIMPLE_ESCAPE_SEQUENCE,
                  OCTAL_ESCAPE_SEQUENCE,
-                 HEXADECIMAL_ESCAPE_SEQUENCE,
-                 UNIVERSAL_CHARACTER_NAME),
+                 HEXADECIMAL_ESCAPE_SEQUENCE),
     M_CREATE_UNION(simpleEscapeSequence(nullptr),
                    SimpleEscapeSequence* simpleEscapeSequence;
                    OctalEscapeSequence* octalEscapeSequence;
-                   HexadecimalEscapeSequence* hexadecimalEscapeSequence;
-                   UniversalCharacterName* universalCharacterName;)
+                   HexadecimalEscapeSequence* hexadecimalEscapeSequence;)
 )
 
 // HeaderName
@@ -186,21 +195,14 @@ M_CREATE_TOKEN_STRUCT
                  STRING_LITERAL,
                  PUNCTUATOR,
                  OTHER),
-    M_CREATE_UNION(sHeaderName{nullptr},
-                   M_CREATE_UNION_MEMBER(HeaderName,
-                                         HeaderName* headerName;)
-                   M_CREATE_UNION_MEMBER(Identifier,
-                                         Identifier* identifier;)
-                   M_CREATE_UNION_MEMBER(PPNumber,
-                                         PPNumber* ppNumber;)
-                   M_CREATE_UNION_MEMBER(CharacterConstant,
-                                         CharacterConstant* characterConstant;)
-                   M_CREATE_UNION_MEMBER(StringLiteral,
-                                         StringLiteral* stringLiteral;)
-                   M_CREATE_UNION_MEMBER(Punctuator,
-                                         Punctuator* punctuator;)
-                   M_CREATE_UNION_MEMBER(Other,
-                                         char c;))
+    M_CREATE_UNION(headerName(nullptr),
+                   HeaderName* headerName;
+                   Identifier* identifier;
+                   PPNumber* ppNumber;
+                   CharacterConstant* characterConstant;
+                   StringLiteral* stringLiteral;
+                   Punctuator* punctuator;
+                   char other;)
 )
 
 // Punctuator
