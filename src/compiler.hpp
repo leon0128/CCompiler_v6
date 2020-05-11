@@ -4,6 +4,7 @@
 #include <vector>
 
 struct TP3Token;
+struct PreprocessingToken;
 
 class Compiler
 {
@@ -18,6 +19,7 @@ private:
 
     std::string mSrc;
     std::vector<TP3Token*> mTP3TokenVec;
+    std::vector<PreprocessingToken*> mPPTokenVec;
 
     bool mIsValid;
 };

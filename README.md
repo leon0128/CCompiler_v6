@@ -3,3 +3,4 @@
 - encoding other than utf-8
 - wide character
 - encoding prefix for string-literal
+- pragma unary operator and pragma directive

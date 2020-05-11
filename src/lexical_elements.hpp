@@ -28,8 +28,8 @@
 #define M_CREATE_TOKEN_STRUCT(name, enum, union) \
     struct name : BaseToken\
     {\
-        enum\
-        union\
+        enum \
+        union \
         name():\
             BaseToken(),\
             tag(NONE),\
@@ -63,14 +63,17 @@
             tag(NONE){}\
     };
 
-#define M_CREATE_TOKEN_STRUCT_ANY_MEMBER(class_name, elements, initializer) \
+#define M_CREATE_TOKEN_STRUCT_ANY_MEMBER(class_name, elements, ...) \
     struct class_name : public BaseToken\
     {\
         elements\
         class_name():\
             BaseToken(),\
-            initializer{}\
+            __VA_ARGS__{}\
     };
+
+#define M_VARIABLE_MACRO(...) \
+    __VA_ARGS__
 
 struct BaseToken;
 struct TP3Token;
@@ -82,6 +85,7 @@ struct EscapeSequence;
 struct HeaderName;
 struct HexadecimalEscapeSequence;
 struct Identifier;
+struct IdentifierList;
 struct OctalEscapeSequence;
 struct PPNumber;
 struct PreprocessingToken;
@@ -90,6 +94,20 @@ struct SChar;
 struct SCharSequence;
 struct SimpleEscapeSequence;
 struct StringLiteral;
+
+struct ControlLine;
+struct ElifGroup;
+struct ElifGroups;
+struct ElseGroup;
+struct Group;
+struct GroupPart;
+struct IfGroup;
+struct IfSection;
+struct NonDirective;
+struct PPTokens;
+struct PreprocessingFile;
+struct ReplacementList;
+struct TextLine;
 
 template<typename Tag>
 bool unexpectedEnumerationError(const char* class_name, Tag tag)
@@ -317,4 +335,162 @@ M_CREATE_TOKEN_STRUCT_ANY_MEMBER
     StringLiteral,
     SCharSequence* sCharSequence;,
     sCharSequence(nullptr)
+)
+
+// ControlLine
+M_CREATE_TOKEN_STRUCT
+(
+    ControlLine,
+    M_CREATE_TAG(INCLUDE,
+                 DEFINE_REPLACEMENT_LIST,
+                 DEFINE_IDENTIFIER_LIST_REPLACEMENT_LIST,
+                 DEFINE_VARIABLE_REPLACEMENT_LIST,
+                 DEFINE_IDENTIFIER_LIST_VARIABLE_REPLACEMENT_LIST,
+                 UNDEF,
+                 LINE,
+                 ERROR,
+                 NEW_LINE),
+    M_CREATE_UNION(sInclude{nullptr},
+                   M_CREATE_UNION_MEMBER(Include,
+                                         PPTokens* ppTokens;)
+                   M_CREATE_UNION_MEMBER(DefineReplacementList,
+                                         Identifier* identifier;
+                                         ReplacementList* replacementList;)
+                   M_CREATE_UNION_MEMBER(DefineIdentifierListReplacementList,
+                                         Identifier* identifier;
+                                         IdentifierList* identifierList;
+                                         ReplacementList* replacementList;)
+                   M_CREATE_UNION_MEMBER(DefineVariableReplacementList,
+                                         Identifier* identifier;
+                                         ReplacementList* replacementList;)
+                   M_CREATE_UNION_MEMBER(DefineIdentifierListVariableReplacementList,
+                                         Identifier* identifier;
+                                         IdentifierList* identifierList;
+                                         ReplacementList* replacementList;)
+                   M_CREATE_UNION_MEMBER(Undef,
+                                         Identifier* identifier;)
+                   M_CREATE_UNION_MEMBER(Line,
+                                         PPTokens* ppTokens;)
+                   M_CREATE_UNION_MEMBER(Error,
+                                         PPTokens* ppTokens;))
+)
+
+// ElifGroup
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    ElifGroup,
+    PPTokens* ppTokens;
+    Group* group;,
+    ppTokens(nullptr),
+    group(nullptr)
+)
+
+// ElifGroups
+M_CREATE_TOKEN_STRUCT_VECTOR
+(
+    ElifGroups,
+    ElifGroup*,
+    elifGroupVec
+)
+
+// ElseGroup
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    ElseGroup,
+    Group* group;,
+    group(nullptr)
+)
+
+// Group
+M_CREATE_TOKEN_STRUCT_VECTOR
+(
+    Group,
+    GroupPart*,
+    groupPartVec
+)
+
+// GroupPart
+M_CREATE_TOKEN_STRUCT
+(
+    GroupPart,
+    M_CREATE_TAG(IF_SECTION,
+                 CONTROL_LINE,
+                 TEXT_LINE,
+                 NON_DIRECTIVE),
+    M_CREATE_UNION(ifSection(nullptr),
+                   IfSection* ifSection;
+                   ControlLine* controlLine;
+                   TextLine* textLine;
+                   NonDirective* nonDirective;)
+)
+
+// IfGroup
+M_CREATE_TOKEN_STRUCT
+(
+    IfGroup,
+    M_CREATE_TAG(IF,
+                 IFDEF,
+                 IFNDEF),
+    M_CREATE_UNION(M_VARIABLE_MACRO(sIf{nullptr, nullptr}),
+                   M_CREATE_UNION_MEMBER(If,
+                                         PPTokens* ppTokens;
+                                         Group* group;)
+                   M_CREATE_UNION_MEMBER(Ifdef,
+                                         Identifier* identifier;
+                                         Group* group;)
+                   M_CREATE_UNION_MEMBER(Ifndef,
+                                         Identifier* identifier;
+                                         Group* group;))
+)
+
+// IfSection
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    IfSection,
+    IfGroup* ifGroup;
+    ElifGroups* elifGroups;
+    ElseGroup* elseGroup;,
+    ifGroup(nullptr),
+    elifGroups(nullptr),
+    elseGroup(nullptr)
+)
+
+// NonDirective
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    NonDirective,
+    PPTokens* ppTokens;,
+    ppTokens(nullptr)
+)
+
+// PPTokens
+M_CREATE_TOKEN_STRUCT_VECTOR
+(
+    PPTokens,
+    TP3Token*,
+    ppTokenVec
+)
+
+// PreprocessingFile
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    PreprocessingFile,
+    Group* group;,
+    group(nullptr)
+)
+
+// ReplacementList
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    ReplacementList,
+    PPTokens* ppTokens;,
+    ppTokens(nullptr)
+)
+
+// TextLine
+M_CREATE_TOKEN_STRUCT_ANY_MEMBER
+(
+    TextLine,
+    PPTokens* ppTokens;,
+    ppTokens(nullptr)
 )
