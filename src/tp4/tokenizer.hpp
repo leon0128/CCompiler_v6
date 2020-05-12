@@ -30,10 +30,18 @@ public:
     bool execute();
 
 private:
-    Group* getGroup(){return nullptr;}
+    ControlLine* getControlLine(){return nullptr;}
+    ElifGroups* getElifGroups(){return nullptr;}
+    ElseGroup* getElseGroup(){return nullptr;}
+    Group* getGroup();
+    GroupPart* getGroupPart();
+    IfGroup* getIfGroup(){return nullptr;}
+    IfSection* getIfSection();
+    NonDirective* getNonDirective(){return nullptr;}
     PreprocessingFile* getPreprocessingFile();
+    TextLine* getTextLine(){return nullptr;}
 
-    void proceedIdx();
+    std::size_t nextIdx(std::size_t) const;
     TP3Token* getTP3Token(std::size_t) const;
 
     const std::vector<TP3Token*>& mTP3TokenVec;
