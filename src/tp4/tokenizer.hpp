@@ -30,16 +30,24 @@ public:
     bool execute();
 
 private:
-    ControlLine* getControlLine(){return nullptr;}
-    ElifGroups* getElifGroups(){return nullptr;}
-    ElseGroup* getElseGroup(){return nullptr;}
+    ControlLine* getControlLine();
+    ElifGroup* getElifGroup();
+    ElifGroups* getElifGroups();
+    ElseGroup* getElseGroup();
     Group* getGroup();
     GroupPart* getGroupPart();
-    IfGroup* getIfGroup(){return nullptr;}
+    IdentifierList* getIdentifierList(){return nullptr;}
+    IfGroup* getIfGroup();
     IfSection* getIfSection();
     NonDirective* getNonDirective(){return nullptr;}
+    PPTokens* getPPTokens(){return nullptr;}
     PreprocessingFile* getPreprocessingFile();
+    ReplacementList* getReplacementList(){return nullptr;}
     TextLine* getTextLine(){return nullptr;}
+
+    bool isPunctuator(std::size_t idx, int tag) const;
+    bool isIdentifier(std::size_t idx, std::string ident = std::string()) const;
+    bool isOther(std::size_t idx, char c = 0) const;
 
     std::size_t nextIdx(std::size_t) const;
     TP3Token* getTP3Token(std::size_t) const;
