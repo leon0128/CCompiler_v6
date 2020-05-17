@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 struct TP3Token;
 struct Identifier;
@@ -24,6 +25,9 @@ struct TextLine;
 
 class Tokenizer
 {
+private:
+    static const std::unordered_map<std::string, int> DIRECTIVE_NAME_MAP;
+
 public:
     Tokenizer(const std::vector<TP3Token*>&,
               PreprocessingFile*&);

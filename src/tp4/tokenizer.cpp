@@ -2,6 +2,19 @@
 #include "../lexical_elements.hpp"
 #include <iostream>
 
+const std::unordered_map<std::string, int> Tokenizer::DIRECTIVE_NAME_MAP
+    = {{"if", 0},
+       {"ifdef", 0},
+       {"ifndef", 0},
+       {"elif", 0},
+       {"else", 0},
+       {"endif", 0},
+       {"include", 0},
+       {"define", 0},
+       {"undef", 0},
+       {"line", 0},
+       {"error", 0}};
+
 Tokenizer::Tokenizer(const std::vector<TP3Token*>& tp3TokenVec,
                      PreprocessingFile*& ppFile):
     mTP3TokenVec(tp3TokenVec),
@@ -428,6 +441,12 @@ IfSection* Tokenizer::getIfSection()
 
 NonDirective* Tokenizer::getNonDirective()
 {
+    if(isIdentifier(nextIdx(mIdx)))
+    {
+        if(DIRECTIVE_NAME_MAP.find(mTP3TokenVec[nextIdx(mIdx)]->uni.ppToken->uni.identifier->sequence) == DIRECTIVE_NAME_MAP.end())
+            return nullptr;
+    }
+
     NonDirective retval;
     bool isValid = false;
     auto befidx = mIdx;
