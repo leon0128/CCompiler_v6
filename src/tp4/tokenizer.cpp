@@ -487,6 +487,9 @@ ReplacementList* Tokenizer::getReplacementList()
 
 TextLine* Tokenizer::getTextLine()
 {
+    if(isPunctuator(nextIdx(mIdx), Punctuator::HASH))
+        return nullptr;
+
     TextLine retval;
     auto befidx = mIdx;
     bool isValid = false;
