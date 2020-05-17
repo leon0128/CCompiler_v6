@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <unordered_map>
 
 #define M_CREATE_TAG(...) \
     enum Tag : int\
@@ -502,3 +503,7 @@ M_CREATE_TOKEN_STRUCT_ANY_MEMBER
     PPTokens* ppTokens;,
     ppTokens(nullptr)
 )
+
+// enum and ident map
+extern const std::unordered_map<PreprocessingToken::Tag, std::string> PREPROCESSING_TOKEN_TAG_MAP;
+extern const std::unordered_map<Punctuator::Tag, std::string> PUNCTUATOR_TAG_MAP;

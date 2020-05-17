@@ -8,10 +8,10 @@
 
 unsigned int TP3::NUM_EXEC = 0;
 const std::unordered_map<std::string, int> TP3::PUNCTUATOR_MAP
-    = {{"[", Punctuator::RSQUALE_PAREN},
-       {"]", Punctuator::LSQUALE_PAREN},
-       {"(", Punctuator::RPAREN},
-       {")", Punctuator::LPAREN},
+    = {{"[", Punctuator::LSQUALE_PAREN},
+       {"]", Punctuator::RSQUALE_PAREN},
+       {"(", Punctuator::LPAREN},
+       {")", Punctuator::RPAREN},
        {"{", Punctuator::LBLOCK_PAREN},
        {"}", Punctuator::RBLOCK_PAREN},
        {".", Punctuator::DOT},
@@ -781,7 +781,7 @@ void TP3::outputResult() const
                             str += "content display is not implemented";
                             break;
                         case(PreprocessingToken::PUNCTUATOR):
-                            str += std::to_string(static_cast<int>(mTP3TokenVec[i]->uni.ppToken->uni.punctuator->tag));
+                            str += PUNCTUATOR_TAG_MAP.at(mTP3TokenVec[i]->uni.ppToken->uni.punctuator->tag);
                             break;
                         case(PreprocessingToken::OTHER):
                             str += std::to_string(static_cast<unsigned int>(mTP3TokenVec[i]->uni.ppToken->uni.other));
@@ -792,7 +792,7 @@ void TP3::outputResult() const
                             break;
                     }
 
-                    fstr << "[idx: " << i << ", tag: " << mTP3TokenVec[i]->uni.ppToken->tag << "]\n"
+                    fstr << "[idx: " << i << ", tag: " << PREPROCESSING_TOKEN_TAG_MAP.at(mTP3TokenVec[i]->uni.ppToken->tag) << "]\n"
                             "    " << str
                          << std::endl;
                     break;
