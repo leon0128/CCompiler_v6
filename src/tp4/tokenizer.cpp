@@ -6,6 +6,7 @@ Tokenizer::Tokenizer(const std::vector<TP3Token*>& tp3TokenVec,
                      PreprocessingFile*& ppFile):
     mTP3TokenVec(tp3TokenVec),
     mPPFile(ppFile),
+    mIdx(0),
     mIsValid(true)
 {
 }
@@ -13,6 +14,16 @@ Tokenizer::Tokenizer(const std::vector<TP3Token*>& tp3TokenVec,
 bool Tokenizer::execute()
 {
     mPPFile = getPreprocessingFile();
+
+    if(mIdx != mTP3TokenVec.size() &&
+       !mTP3TokenVec.empty())
+    {
+        mIsValid = false;
+        std::cout << "TP4 Tokenizer error:\n"
+                     "    what: token sequence is not evaluated until the end.\n"
+                     "    idx: " << mIdx
+                  << std::endl;
+    }
 
     return mIsValid;
 }
@@ -42,15 +53,129 @@ ControlLine* Tokenizer::getControlLine()
             {
                 Identifier* identifier = mTP3TokenVec[mIdx]->uni.ppToken->uni.identifier;
                 auto tmpidx = mIdx;
+                bool isExsitedLparen = false;
                 if(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::LPAREN))
                 {
                     if(tmpidx + 1 == mIdx)
                     {
-                        
+                        isExsitedLparen = true;
+                        if(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::DOTDOTDOT))
+                        {
+                            if(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::RPAREN))
+                            {
+                                mIdx++;
+                                if((retval.uni.sDefineVariableReplacementList.replacementList = getReplacementList()) != nullptr)
+                                {
+                                    if(isOther(mIdx = nextIdx(mIdx), '\n'))
+                                    {
+                                        mIdx++;
+                                        retval.uni.sDefineVariableReplacementList.identifier = identifier;
+                                        retval.tag = ControlLine::DEFINE_VARIABLE_REPLACEMENT_LIST;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            IdentifierList* identifierList = getIdentifierList();
+                            if(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::RPAREN))
+                            {
+                                mIdx++;
+                                if((retval.uni.sDefineIdentifierListReplacementList.replacementList = getReplacementList()) != nullptr)
+                                {
+                                    if(isOther(mIdx = nextIdx(mIdx), '\n'))
+                                    {
+                                        mIdx++;
+                                        retval.uni.sDefineIdentifierListReplacementList.identifier = identifier;
+                                        retval.uni.sDefineIdentifierListReplacementList.identifierList = identifierList;
+                                        retval.tag = ControlLine::DEFINE_IDENTIFIER_LIST_REPLACEMENT_LIST;
+                                    }
+                                }
+                            }
+                            else if(identifierList != nullptr &&
+                                    isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::COMMA))
+                            {
+                                if(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::DOTDOTDOT))
+                                {
+                                    if(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::RPAREN))
+                                    {
+                                        mIdx++;
+                                        if((retval.uni.sDefineIdentifierListVariableReplacementList.replacementList = getReplacementList()) != nullptr)
+                                        {
+                                            if(isOther(mIdx = nextIdx(mIdx), '\n'))
+                                            {
+                                                mIdx++;
+                                                retval.uni.sDefineIdentifierListVariableReplacementList.identifier = identifier;
+                                                retval.uni.sDefineIdentifierListVariableReplacementList.identifierList = identifierList;
+                                                retval.tag = ControlLine::DEFINE_IDENTIFIER_LIST_VARIABLE_REPLACEMENT_LIST;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if(!isExsitedLparen)
+                {
+                    mIdx = tmpidx + 1;
+                    if((retval.uni.sDefineReplacementList.replacementList = getReplacementList()) != nullptr)
+                    {
+                        if(isOther(mIdx = nextIdx(mIdx), '\n'))
+                        {
+                            mIdx++;
+                            retval.uni.sDefineReplacementList.identifier = identifier;
+                            retval.tag = ControlLine::DEFINE_REPLACEMENT_LIST;
+                        }
                     }
                 }
             }
         }
+        else if(isIdentifier(mIdx = nextIdx(mIdx + 1), "undef"))
+        {
+            if(isIdentifier(mIdx = nextIdx(mIdx + 1)))
+            {
+                retval.uni.sUndef.identifier = mTP3TokenVec[mIdx]->uni.ppToken->uni.identifier;
+                retval.tag = ControlLine::UNDEF;
+                mIdx++;
+            }
+        }
+        else if(isIdentifier(mIdx = nextIdx(mIdx + 1), "line"))
+        {
+            mIdx++;
+            if((retval.uni.sLine.ppTokens = getPPTokens()) != nullptr)
+            {
+                if(isOther(mIdx = nextIdx(mIdx), '\n'))
+                {
+                    mIdx++;
+                    retval.tag = ControlLine::LINE;
+                }
+            }
+        }
+        else if(isIdentifier(mIdx = nextIdx(mIdx + 1), "error"))
+        {
+            mIdx++;
+            retval.uni.sError.ppTokens = getPPTokens();
+            if(isOther(mIdx = nextIdx(mIdx), '\n'))
+            {
+                mIdx++;
+                retval.tag = ControlLine::ERROR;
+            }
+        }
+        else if(isOther(mIdx = nextIdx(mIdx + 1), '\n'))
+        {
+            mIdx++;
+            retval.tag = ControlLine::NEW_LINE;
+        }
+    }
+
+    if(retval.tag != ControlLine::NONE)
+        return new ControlLine(retval);
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
     }
 }
 
@@ -111,11 +236,14 @@ ElseGroup* Tokenizer::getElseGroup()
 
     if(isPunctuator(mIdx = nextIdx(mIdx), Punctuator::HASH))
     {
-        if(isIdentifier(mIdx = nextIdx(mIdx + 1), '\n'))
+        if(isIdentifier(mIdx = nextIdx(mIdx + 1), "else"))
         {
-            mIdx++;
-            retval.group = getGroup();
-            isValid = true;
+            if(isOther(mIdx = nextIdx(mIdx + 1), '\n'))
+            {
+                mIdx++;
+                retval.group = getGroup();
+                isValid = true;
+            }
         }
     }
 
@@ -132,7 +260,7 @@ Group* Tokenizer::getGroup()
 {
     std::vector<GroupPart*> gpVec;
 
-    for(auto gp = getGroupPart(); gp != nullptr; gp = getGroup())
+    for(auto gp = getGroupPart(); gp != nullptr; gp = getGroupPart())
         gpVec.push_back(gp);
 
     if(!gpVec.empty())
@@ -175,6 +303,36 @@ GroupPart* Tokenizer::getGroupPart()
         mIdx = befidx;
         return nullptr;
     }
+}
+
+IdentifierList* Tokenizer::getIdentifierList()
+{
+    std::vector<Identifier*> ivec;
+
+    if(isIdentifier(mIdx = nextIdx(mIdx)))
+    {
+        ivec.push_back(mTP3TokenVec[mIdx]->uni.ppToken->uni.identifier);
+
+        while(isPunctuator(mIdx = nextIdx(mIdx + 1), Punctuator::COMMA))
+        {
+            if(isIdentifier(mIdx = nextIdx(mIdx + 1)))
+                ivec.push_back(mTP3TokenVec[mIdx]->uni.ppToken->uni.identifier);
+            else
+            {
+                mIdx--;
+                break;
+            }
+        }
+    }
+
+    if(!ivec.empty())
+    {
+        IdentifierList* retval = new IdentifierList();
+        retval->identifierList = std::move(ivec);
+        return retval;
+    }
+    else
+        return nullptr;
 }
 
 IfGroup* Tokenizer::getIfGroup()
@@ -268,11 +426,85 @@ IfSection* Tokenizer::getIfSection()
     }
 }
 
+NonDirective* Tokenizer::getNonDirective()
+{
+    NonDirective retval;
+    bool isValid = false;
+    auto befidx = mIdx;
+
+    if((retval.ppTokens = getPPTokens()) != nullptr)
+    {
+        if(isOther(mIdx = nextIdx(mIdx), '\n'))
+        {
+            mIdx++;
+            isValid = true;
+        }
+    }
+
+    if(isValid)
+        return new NonDirective(retval);
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
+}
+
+PPTokens* Tokenizer::getPPTokens()
+{
+    std::vector<TP3Token*> ptvec;
+    auto befidx = mIdx;
+
+    for(bool isNewLine = isOther(mIdx, '\n'); !isNewLine && mIdx < mTP3TokenVec.size(); isNewLine = isOther(mIdx += 1, '\n'))
+        ptvec.push_back(mTP3TokenVec[mIdx]);
+    
+    if(!ptvec.empty())
+    {
+        PPTokens* retval = new PPTokens();
+        retval->ppTokenVec = std::move(ptvec);
+        return retval;
+    }
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
+}
+
 PreprocessingFile* Tokenizer::getPreprocessingFile()
 {
     PreprocessingFile* retval = new PreprocessingFile();
     retval->group = getGroup();
     return retval;
+}
+
+ReplacementList* Tokenizer::getReplacementList()
+{
+    ReplacementList* retval = new ReplacementList();
+    retval->ppTokens = getPPTokens();
+    return retval;
+}
+
+TextLine* Tokenizer::getTextLine()
+{
+    TextLine retval;
+    auto befidx = mIdx;
+    bool isValid = false;
+
+    retval.ppTokens = getPPTokens();
+    if(isOther(mIdx = nextIdx(mIdx), '\n'))
+    {
+        mIdx++;
+        isValid = true;
+    }
+
+    if(isValid)
+        return new TextLine(retval);
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
 }
 
 bool Tokenizer::isPunctuator(std::size_t idx, int tag) const
@@ -328,7 +560,6 @@ bool Tokenizer::isOther(std::size_t idx, char c) const
 
 std::size_t Tokenizer::nextIdx(std::size_t idx) const
 {
-    std::size_t retval = idx;
     for(; idx < mTP3TokenVec.size(); idx++)
     {
         if(mTP3TokenVec[idx]->tag == TP3Token::PP_TOKEN)

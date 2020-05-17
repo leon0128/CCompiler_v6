@@ -210,6 +210,14 @@ M_CREATE_TOKEN_STRUCT_ANY_MEMBER
 // Identifier
 M_CREATE_TOKEN_STRUCT_STRING(Identifier)
 
+// IdentifierList
+M_CREATE_TOKEN_STRUCT_VECTOR
+(
+    IdentifierList,
+    Identifier*,
+    identifierList
+)
+
 // OctalEscapeSequence
 M_CREATE_TOKEN_STRUCT_ANY_MEMBER
 (

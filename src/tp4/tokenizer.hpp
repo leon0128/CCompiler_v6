@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <string>
 
 struct TP3Token;
 struct Identifier;
@@ -36,14 +37,14 @@ private:
     ElseGroup* getElseGroup();
     Group* getGroup();
     GroupPart* getGroupPart();
-    IdentifierList* getIdentifierList(){return nullptr;}
+    IdentifierList* getIdentifierList();
     IfGroup* getIfGroup();
     IfSection* getIfSection();
-    NonDirective* getNonDirective(){return nullptr;}
-    PPTokens* getPPTokens(){return nullptr;}
+    NonDirective* getNonDirective();
+    PPTokens* getPPTokens();
     PreprocessingFile* getPreprocessingFile();
-    ReplacementList* getReplacementList(){return nullptr;}
-    TextLine* getTextLine(){return nullptr;}
+    ReplacementList* getReplacementList();
+    TextLine* getTextLine();
 
     bool isPunctuator(std::size_t idx, int tag) const;
     bool isIdentifier(std::size_t idx, std::string ident = std::string()) const;
