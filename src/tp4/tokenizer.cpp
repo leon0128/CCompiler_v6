@@ -2,7 +2,7 @@
 #include "../lexical_elements.hpp"
 #include <iostream>
 
-const std::unordered_map<std::string, int> Tokenizer::DIRECTIVE_NAME_MAP
+const std::unordered_map<std::string, int> TP4::Tokenizer::DIRECTIVE_NAME_MAP
     = {{"if", 0},
        {"ifdef", 0},
        {"ifndef", 0},
@@ -15,7 +15,7 @@ const std::unordered_map<std::string, int> Tokenizer::DIRECTIVE_NAME_MAP
        {"line", 0},
        {"error", 0}};
 
-Tokenizer::Tokenizer(const std::vector<TP3Token*>& tp3TokenVec,
+TP4::Tokenizer::Tokenizer(const std::vector<TP3Token*>& tp3TokenVec,
                      PreprocessingFile*& ppFile):
     mTP3TokenVec(tp3TokenVec),
     mPPFile(ppFile),
@@ -24,7 +24,7 @@ Tokenizer::Tokenizer(const std::vector<TP3Token*>& tp3TokenVec,
 {
 }
 
-bool Tokenizer::execute()
+bool TP4::Tokenizer::execute()
 {
     mPPFile = getPreprocessingFile();
 
@@ -41,7 +41,7 @@ bool Tokenizer::execute()
     return mIsValid;
 }
 
-ControlLine* Tokenizer::getControlLine()
+ControlLine* TP4::Tokenizer::getControlLine()
 {
     ControlLine retval;
     auto befidx = mIdx;
@@ -192,7 +192,7 @@ ControlLine* Tokenizer::getControlLine()
     }
 }
 
-ElifGroup* Tokenizer::getElifGroup()
+ElifGroup* TP4::Tokenizer::getElifGroup()
 {
     ElifGroup retval;
     bool isValid = false;
@@ -224,7 +224,7 @@ ElifGroup* Tokenizer::getElifGroup()
     }
 }
 
-ElifGroups* Tokenizer::getElifGroups()
+ElifGroups* TP4::Tokenizer::getElifGroups()
 {
     std::vector<ElifGroup*> egvec;
 
@@ -241,7 +241,7 @@ ElifGroups* Tokenizer::getElifGroups()
         return nullptr;
 }
 
-ElseGroup* Tokenizer::getElseGroup()
+ElseGroup* TP4::Tokenizer::getElseGroup()
 {
     ElseGroup retval;
     bool isValid = true;
@@ -269,12 +269,37 @@ ElseGroup* Tokenizer::getElseGroup()
     }
 }
 
-Group* Tokenizer::getGroup()
+Group* TP4::Tokenizer::getGroup()
 {
     std::vector<GroupPart*> gpVec;
 
     for(auto gp = getGroupPart(); gp != nullptr; gp = getGroupPart())
-        gpVec.push_back(gp);
+    {
+        if(!gpVec.empty())
+        {
+            if(gpVec.back()->tag == GroupPart::TEXT_LINE &&
+               gp->tag == GroupPart::TEXT_LINE)
+            {
+                PPTokens* pt = nullptr;
+                if(gpVec.back()->uni.textLine->ppTokens != nullptr &&
+                   gp->uni.textLine->ppTokens != nullptr)
+                {
+                    gpVec.back()->uni.textLine->ppTokens->ppTokenVec.insert(gpVec.back()->uni.textLine->ppTokens->ppTokenVec.end(), gp->uni.textLine->ppTokens->ppTokenVec.begin(), gp->uni.textLine->ppTokens->ppTokenVec.end());
+                    pt = gpVec.back()->uni.textLine->ppTokens;
+                }
+                else if(gpVec.back()->uni.textLine->ppTokens != nullptr)
+                    pt = gpVec.back()->uni.textLine->ppTokens;
+                else if(gp->uni.textLine->ppTokens != nullptr)
+                    pt = gp->uni.textLine->ppTokens;
+
+                gpVec.back()->uni.textLine->ppTokens = pt;
+            }
+            else
+                gpVec.push_back(gp);
+        }
+        else
+            gpVec.push_back(gp);
+    }
 
     if(!gpVec.empty())
     {
@@ -286,7 +311,7 @@ Group* Tokenizer::getGroup()
         return nullptr;
 }
 
-GroupPart* Tokenizer::getGroupPart()
+GroupPart* TP4::Tokenizer::getGroupPart()
 {
     GroupPart retval;
 
@@ -318,7 +343,7 @@ GroupPart* Tokenizer::getGroupPart()
     }
 }
 
-IdentifierList* Tokenizer::getIdentifierList()
+IdentifierList* TP4::Tokenizer::getIdentifierList()
 {
     std::vector<Identifier*> ivec;
 
@@ -348,7 +373,7 @@ IdentifierList* Tokenizer::getIdentifierList()
         return nullptr;
 }
 
-IfGroup* Tokenizer::getIfGroup()
+IfGroup* TP4::Tokenizer::getIfGroup()
 {
     IfGroup retval;
     auto befidx = mIdx;
@@ -405,7 +430,7 @@ IfGroup* Tokenizer::getIfGroup()
     }
 }
 
-IfSection* Tokenizer::getIfSection()
+IfSection* TP4::Tokenizer::getIfSection()
 {
     IfSection retval;
 
@@ -439,7 +464,7 @@ IfSection* Tokenizer::getIfSection()
     }
 }
 
-NonDirective* Tokenizer::getNonDirective()
+NonDirective* TP4::Tokenizer::getNonDirective()
 {
     if(isIdentifier(nextIdx(mIdx)))
     {
@@ -469,13 +494,16 @@ NonDirective* Tokenizer::getNonDirective()
     }
 }
 
-PPTokens* Tokenizer::getPPTokens()
+PPTokens* TP4::Tokenizer::getPPTokens()
 {
-    std::vector<TP3Token*> ptvec;
+    std::vector<PreprocessingToken*> ptvec;
     auto befidx = mIdx;
 
     for(bool isNewLine = isOther(mIdx, '\n'); !isNewLine && mIdx < mTP3TokenVec.size(); isNewLine = isOther(mIdx += 1, '\n'))
-        ptvec.push_back(mTP3TokenVec[mIdx]);
+    {
+        if(mTP3TokenVec[mIdx]->tag == TP3Token::PP_TOKEN)
+            ptvec.push_back(mTP3TokenVec[mIdx]->uni.ppToken);
+    }
     
     if(!ptvec.empty())
     {
@@ -490,21 +518,42 @@ PPTokens* Tokenizer::getPPTokens()
     }
 }
 
-PreprocessingFile* Tokenizer::getPreprocessingFile()
+PreprocessingFile* TP4::Tokenizer::getPreprocessingFile()
 {
     PreprocessingFile* retval = new PreprocessingFile();
     retval->group = getGroup();
     return retval;
 }
 
-ReplacementList* Tokenizer::getReplacementList()
+ReplacementList* TP4::Tokenizer::getReplacementList()
 {
     ReplacementList* retval = new ReplacementList();
-    retval->ppTokens = getPPTokens();
+    retval->tp3Tokens = getTP3Tokens();
     return retval;
 }
 
-TextLine* Tokenizer::getTextLine()
+TP3Tokens* TP4::Tokenizer::getTP3Tokens()
+{
+    std::vector<TP3Token*> ttvec;
+    auto befidx = mIdx;
+
+    for(bool isNewLine = isOther(mIdx, '\n'); !isNewLine && mIdx < mTP3TokenVec.size(); isNewLine = isOther(mIdx += 1, '\n'))
+        ttvec.push_back(mTP3TokenVec[mIdx]);
+    
+    if(!ttvec.empty())
+    {
+        TP3Tokens* retval = new TP3Tokens();
+        retval->tp3TokenVec = std::move(ttvec);
+        return retval;
+    }
+    else
+    {
+        mIdx = befidx;
+        return nullptr;
+    }
+}
+
+TextLine* TP4::Tokenizer::getTextLine()
 {
     if(isPunctuator(nextIdx(mIdx), Punctuator::HASH))
         return nullptr;
@@ -529,7 +578,7 @@ TextLine* Tokenizer::getTextLine()
     }
 }
 
-bool Tokenizer::isPunctuator(std::size_t idx, int tag) const
+bool TP4::Tokenizer::isPunctuator(std::size_t idx, int tag) const
 {
     if(getTP3Token(idx) == nullptr)
         return false;
@@ -546,7 +595,7 @@ bool Tokenizer::isPunctuator(std::size_t idx, int tag) const
         return true;
 }
 
-bool Tokenizer::isIdentifier(std::size_t idx, std::string ident) const
+bool TP4::Tokenizer::isIdentifier(std::size_t idx, std::string ident) const
 {
     if(getTP3Token(idx) == nullptr)
         return false;
@@ -563,7 +612,7 @@ bool Tokenizer::isIdentifier(std::size_t idx, std::string ident) const
         return true;
 }
 
-bool Tokenizer::isOther(std::size_t idx, char c) const
+bool TP4::Tokenizer::isOther(std::size_t idx, char c) const
 {
     if(getTP3Token(idx) == nullptr)
         return false;
@@ -580,7 +629,7 @@ bool Tokenizer::isOther(std::size_t idx, char c) const
         return true;
 }
 
-std::size_t Tokenizer::nextIdx(std::size_t idx) const
+std::size_t TP4::Tokenizer::nextIdx(std::size_t idx) const
 {
     for(; idx < mTP3TokenVec.size(); idx++)
     {
@@ -591,7 +640,7 @@ std::size_t Tokenizer::nextIdx(std::size_t idx) const
     return idx;
 }
 
-TP3Token* Tokenizer::getTP3Token(std::size_t idx) const
+TP3Token* TP4::Tokenizer::getTP3Token(std::size_t idx) const
 {
     return idx < mTP3TokenVec.size() ? mTP3TokenVec[idx] : nullptr;
 }

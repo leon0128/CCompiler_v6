@@ -1,4 +1,5 @@
 #include "compiler.hpp"
+#include "global_data.hpp"
 #include "tp1/translation_phase_1.hpp"
 #include "tp2/translation_phase_2.hpp"
 #include "tp3/translation_phase_3.hpp"
@@ -19,29 +20,31 @@ Compiler::~Compiler()
 
 bool Compiler::execute(int argc, char** argv)
 {
+    GLOBAL::CURRENT_FILENAME = argv[1];
+
     checkArgs(argc);
 
     if(mIsValid)
     {
-        TP1 tp1(mSrc);
+        TP1::TP1 tp1(mSrc);
         mIsValid = tp1.execute(argv[1]);
     }
 
     if(mIsValid)
     {
-        TP2 tp2(mSrc);
+        TP2::TP2 tp2(mSrc);
         mIsValid = tp2.execute();
     }
 
     if(mIsValid)
     {
-        TP3 tp3(mSrc, mTP3TokenVec);
+        TP3::TP3 tp3(mSrc, mTP3TokenVec);
         mIsValid = tp3.execute();
     }
 
     if(mIsValid)
     {
-        TP4 tp4(mTP3TokenVec, mPPTokenVec);
+        TP4::TP4 tp4(mTP3TokenVec, mPPTokenVec);
         mIsValid = tp4.execute();
     }
 

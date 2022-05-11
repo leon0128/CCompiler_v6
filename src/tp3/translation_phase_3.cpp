@@ -6,8 +6,8 @@
 #include <cstdint>
 #include <array>
 
-unsigned int TP3::NUM_EXEC = 0;
-const std::unordered_map<std::string, int> TP3::PUNCTUATOR_MAP
+unsigned int TP3::TP3::NUM_EXEC = 0;
+const std::unordered_map<std::string, int> TP3::TP3::PUNCTUATOR_MAP
     = {{"[", Punctuator::LSQUALE_PAREN},
        {"]", Punctuator::RSQUALE_PAREN},
        {"(", Punctuator::LPAREN},
@@ -63,7 +63,7 @@ const std::unordered_map<std::string, int> TP3::PUNCTUATOR_MAP
        {"%:", Punctuator::HASH},
        {"%:%:", Punctuator::HASHHASH}};
 
-const std::unordered_map<char, int> TP3::ESCAPE_SEQUENCE_MAP
+const std::unordered_map<char, int> TP3::TP3::ESCAPE_SEQUENCE_MAP
     = {{'\'', SimpleEscapeSequence::SINGLE_QUOTATION},
        {'"', SimpleEscapeSequence::DOUBLE_QUOTATION},
        {'?', SimpleEscapeSequence::QUESTION},
@@ -76,7 +76,7 @@ const std::unordered_map<char, int> TP3::ESCAPE_SEQUENCE_MAP
        {'t', SimpleEscapeSequence::HORIZONTAL_TAB},
        {'v', SimpleEscapeSequence::VERTICAL_TAB}};
 
-TP3::TP3(const std::string& src,
+TP3::TP3::TP3(const std::string& src,
          std::vector<TP3Token*>& tp3TokenVec):
     mSrc(src),
     mIdx(),
@@ -85,7 +85,7 @@ TP3::TP3(const std::string& src,
 {
 }
 
-bool TP3::execute()
+bool TP3::TP3::execute()
 {
     for(auto t = getTP3Token(); mIdx < mSrc.size(); t = getTP3Token())
         mTP3TokenVec.push_back(t);
@@ -105,7 +105,7 @@ bool TP3::execute()
     return mIsValid;
 }
 
-TP3Token* TP3::getTP3Token()
+TP3Token* TP3::TP3::getTP3Token()
 {
     TP3Token retval;
     auto befidx = mIdx;
@@ -127,7 +127,7 @@ TP3Token* TP3::getTP3Token()
     }
 }
 
-unsigned int TP3::getWhiteSpace()
+unsigned int TP3::TP3::getWhiteSpace()
 {
     unsigned int retval = 0;
     bool isContinued = true;
@@ -189,7 +189,7 @@ unsigned int TP3::getWhiteSpace()
     return retval;
 }
 
-CChar* TP3::getCChar()
+CChar* TP3::TP3::getCChar()
 {
     CChar retval;
 
@@ -208,7 +208,7 @@ CChar* TP3::getCChar()
     return retval.tag != CChar::NONE ? new CChar(retval) : nullptr;
 }
 
-CCharSequence* TP3::getCCharSequence()
+CCharSequence* TP3::TP3::getCCharSequence()
 {
     std::vector<CChar*> ccVec;
 
@@ -225,7 +225,7 @@ CCharSequence* TP3::getCCharSequence()
         return nullptr;
 }
 
-CharacterConstant* TP3::getCharacterConstant()
+CharacterConstant* TP3::TP3::getCharacterConstant()
 {
     CCharSequence* sequence = nullptr;
     CharacterConstant::Tag tag = CharacterConstant::NONE;
@@ -288,7 +288,7 @@ CharacterConstant* TP3::getCharacterConstant()
     }
 }
 
-EscapeSequence* TP3::getEscapeSequence()
+EscapeSequence* TP3::TP3::getEscapeSequence()
 {
     EscapeSequence retval;
 
@@ -302,7 +302,7 @@ EscapeSequence* TP3::getEscapeSequence()
     return retval.tag != EscapeSequence::NONE ? new EscapeSequence(retval) : nullptr;
 }
 
-HeaderName* TP3::getHeaderName()
+HeaderName* TP3::TP3::getHeaderName()
 {
     PreprocessingToken *bef = nullptr, *aft = nullptr;
     for(auto i = mTP3TokenVec.size(); i > 0; i--)
@@ -400,7 +400,7 @@ HeaderName* TP3::getHeaderName()
     }
 }
 
-HexadecimalEscapeSequence* TP3::getHexadecimalEscapeSequence()
+HexadecimalEscapeSequence* TP3::TP3::getHexadecimalEscapeSequence()
 {
     char arr[4];
     for(std::size_t i = 0; i < 4; i++)
@@ -454,7 +454,7 @@ HexadecimalEscapeSequence* TP3::getHexadecimalEscapeSequence()
     }
 }
 
-Identifier* TP3::getIdentifier()
+Identifier* TP3::TP3::getIdentifier()
 {
     std::string sequence;
     
@@ -488,7 +488,7 @@ Identifier* TP3::getIdentifier()
         return nullptr;
 }
 
-OctalEscapeSequence* TP3::getOctalEscapeSequence()
+OctalEscapeSequence* TP3::TP3::getOctalEscapeSequence()
 {
     char c = getChar(mIdx);
     char nc = getChar(mIdx + 1);
@@ -530,7 +530,7 @@ OctalEscapeSequence* TP3::getOctalEscapeSequence()
         return nullptr;
 }
 
-PPNumber* TP3::getPPNumber()
+PPNumber* TP3::TP3::getPPNumber()
 {
     std::string sequence;
 
@@ -598,7 +598,7 @@ PPNumber* TP3::getPPNumber()
         return nullptr;
 }
 
-PreprocessingToken* TP3::getPPToken()
+PreprocessingToken* TP3::TP3::getPPToken()
 {
     PreprocessingToken retval;
 
@@ -623,7 +623,7 @@ PreprocessingToken* TP3::getPPToken()
     return new PreprocessingToken(retval);
 }
 
-Punctuator* TP3::getPunctuator()
+Punctuator* TP3::TP3::getPunctuator()
 {
     Punctuator::Tag tag = Punctuator::NONE;
 
@@ -659,7 +659,7 @@ Punctuator* TP3::getPunctuator()
         return nullptr;
 }
 
-SimpleEscapeSequence* TP3::getSimpleEscapeSequence()
+SimpleEscapeSequence* TP3::TP3::getSimpleEscapeSequence()
 {
     if(getChar(mIdx) != '\\')
         return nullptr;
@@ -676,7 +676,7 @@ SimpleEscapeSequence* TP3::getSimpleEscapeSequence()
         return nullptr;
 }
 
-SChar* TP3::getSChar()
+SChar* TP3::TP3::getSChar()
 {
     SChar retval;
     char c = getChar(mIdx);
@@ -695,7 +695,7 @@ SChar* TP3::getSChar()
     return retval.tag != SChar::NONE ? new SChar(retval) : nullptr;
 }
 
-SCharSequence* TP3::getSCharSequence()
+SCharSequence* TP3::TP3::getSCharSequence()
 {
     std::vector<SChar*> scVec;
 
@@ -712,7 +712,7 @@ SCharSequence* TP3::getSCharSequence()
         return nullptr;
 }
 
-StringLiteral* TP3::getStringLiteral()
+StringLiteral* TP3::TP3::getStringLiteral()
 {
     StringLiteral retval;
 
@@ -740,7 +740,7 @@ StringLiteral* TP3::getStringLiteral()
     }
 }
 
-void TP3::outputResult() const
+void TP3::TP3::outputResult() const
 {
     std::string resFilename = "res/tp3_";
     resFilename += std::to_string(NUM_EXEC);

@@ -7,6 +7,9 @@ struct ReplacementList;
 struct IdentifierList;
 struct Identifier;
 
+namespace TP4
+{
+
 struct Macro
 {
     enum Tag
@@ -27,4 +30,9 @@ struct Macro
         replacementList(nullptr),
         argumentList(nullptr),
         isVariable(false){}
+
+    friend bool operator==(const Macro&, const Macro&);
+    friend bool operator!=(const Macro&, const Macro&);
 };
+
+}

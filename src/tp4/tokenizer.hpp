@@ -21,7 +21,11 @@ struct NonDirective;
 struct PPTokens;
 struct PreprocessingFile;
 struct ReplacementList;
+struct TP3Tokens;
 struct TextLine;
+
+namespace TP4
+{
 
 class Tokenizer
 {
@@ -48,6 +52,7 @@ private:
     PPTokens* getPPTokens();
     PreprocessingFile* getPreprocessingFile();
     ReplacementList* getReplacementList();
+    TP3Tokens* getTP3Tokens();
     TextLine* getTextLine();
 
     bool isPunctuator(std::size_t idx, int tag) const;
@@ -63,3 +68,5 @@ private:
 
     bool mIsValid;
 };
+
+}

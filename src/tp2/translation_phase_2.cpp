@@ -2,15 +2,15 @@
 #include <iostream>
 #include <fstream>
 
-unsigned int TP2::NUM_EXEC = 0;
+unsigned int TP2::TP2::NUM_EXEC = 0;
 
-TP2::TP2(std::string& str):
+TP2::TP2::TP2(std::string& str):
     mSrc(str),
     mIsValid(true)
 {
 }
 
-bool TP2::execute()
+bool TP2::TP2::execute()
 {
     splice();
 
@@ -20,13 +20,13 @@ bool TP2::execute()
     return mIsValid;
 }
 
-void TP2::splice()
+void TP2::TP2::splice()
 {
     for(std::size_t pos = mSrc.find("\\\n"); pos + 1 < mSrc.size() && pos != std::string::npos; pos = mSrc.find("\\\n", pos))
         mSrc.replace(pos, 2, "");
 }
 
-void TP2::outputResult() const
+void TP2::TP2::outputResult() const
 {
     std::string resFilename = "res/tp2_";
     resFilename += std::to_string(NUM_EXEC);

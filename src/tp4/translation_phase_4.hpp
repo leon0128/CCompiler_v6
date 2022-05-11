@@ -6,6 +6,9 @@ struct TP3Token;
 struct PreprocessingToken;
 struct PreprocessingFile;
 
+namespace TP4
+{
+
 class TP4
 {
 public:
@@ -21,3 +24,5 @@ private:
 
     bool mIsValid;
 };
+
+}

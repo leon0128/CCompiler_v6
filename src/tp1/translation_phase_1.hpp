@@ -3,6 +3,9 @@
 #include <string>
 #include <unordered_map>
 
+namespace TP1
+{
+
 class TP1
 {
 private:
@@ -23,3 +26,5 @@ private:
 
     bool mIsValid;
 };
+
+}

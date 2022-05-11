@@ -35,6 +35,7 @@
             BaseToken(),\
             tag(NONE),\
             uni(){}\
+        bool string(std::string&) const override;\
     };
 
 #define M_CREATE_TOKEN_STRUCT_VECTOR(class_name, ele_name, mem_name) \
@@ -44,6 +45,7 @@
         class_name():\
             BaseToken(),\
             mem_name(){}\
+        bool string(std::string&) const override;\
     };
 
 #define M_CREATE_TOKEN_STRUCT_STRING(class_name) \
@@ -53,6 +55,7 @@
         class_name():\
             BaseToken(),\
             sequence(){}\
+        bool string(std::string&) const override;\
     };
 
 #define M_CREATE_TOKEN_STRUCT_TAG(class_name, enum) \
@@ -62,6 +65,7 @@
         class_name():\
             BaseToken(),\
             tag(NONE){}\
+        bool string(std::string&) const override;\
     };
 
 #define M_CREATE_TOKEN_STRUCT_ANY_MEMBER(class_name, elements, ...) \
@@ -71,6 +75,7 @@
         class_name():\
             BaseToken(),\
             __VA_ARGS__{}\
+        bool string(std::string&) const override;\
     };
 
 #define M_VARIABLE_MACRO(...) \
@@ -78,6 +83,10 @@
 
 struct BaseToken;
 struct TP3Token;
+
+struct ConstantExpression;
+struct Token;
+struct TranslationUnit;
 
 struct CChar;
 struct CCharSequence;
@@ -108,6 +117,7 @@ struct NonDirective;
 struct PPTokens;
 struct PreprocessingFile;
 struct ReplacementList;
+struct TP3Tokens; // this is original.
 struct TextLine;
 
 template<typename Tag>
@@ -128,6 +138,8 @@ private:
 
 public:
     virtual ~BaseToken() = default;
+
+    virtual bool string(std::string&) const = 0;
 };
 
 // TP3Token
@@ -171,6 +183,8 @@ struct CharacterConstant : public BaseToken
         BaseToken(),
         tag(NONE),
         cCharSequence(nullptr){}
+
+    bool string(std::string&) const override;
 };
 
 // EscapeSequence
@@ -198,6 +212,8 @@ struct HeaderName : public BaseToken
         BaseToken(),
         tag(NONE),
         sequence(){}
+
+    bool string(std::string&) const override;
 };
 
 // HexadecimalEscapeSequence
@@ -476,7 +492,7 @@ M_CREATE_TOKEN_STRUCT_ANY_MEMBER
 M_CREATE_TOKEN_STRUCT_VECTOR
 (
     PPTokens,
-    TP3Token*,
+    PreprocessingToken*,
     ppTokenVec
 )
 
@@ -492,8 +508,16 @@ M_CREATE_TOKEN_STRUCT_ANY_MEMBER
 M_CREATE_TOKEN_STRUCT_ANY_MEMBER
 (
     ReplacementList,
-    PPTokens* ppTokens;,
-    ppTokens(nullptr)
+    TP3Tokens* tp3Tokens;,
+    tp3Tokens(nullptr)
+)
+
+// TP3Tokens
+M_CREATE_TOKEN_STRUCT_VECTOR
+(
+    TP3Tokens,
+    TP3Token*,
+    tp3TokenVec
 )
 
 // TextLine

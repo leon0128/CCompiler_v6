@@ -2,6 +2,9 @@
 
 #include <string>
 
+namespace TP2
+{
+
 class TP2
 {
 private:
@@ -20,3 +23,5 @@ private:
 
     bool mIsValid;
 };
+
+}

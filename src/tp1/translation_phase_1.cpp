@@ -3,7 +3,7 @@
 #include <sstream>
 #include <iostream>
 
-const std::unordered_map<char, char> TP1::TRIGPAPH_MAP
+const std::unordered_map<char, char> TP1::TP1::TRIGPAPH_MAP
     = {{'=', '#'},
        {'(', '['},
        {'/', '\\'},
@@ -14,15 +14,15 @@ const std::unordered_map<char, char> TP1::TRIGPAPH_MAP
        {'>', '}'},
        {'-', '~'}};
 
-unsigned int TP1::NUM_EXEC = 0;
+unsigned int TP1::TP1::NUM_EXEC = 0;
 
-TP1::TP1(std::string& str):
+TP1::TP1::TP1(std::string& str):
     mSrc(str),
     mIsValid(true)
 {
 }
 
-bool TP1::execute(const char* filename)
+bool TP1::TP1::execute(const char* filename)
 {
     checkFilename(filename);
     
@@ -35,7 +35,7 @@ bool TP1::execute(const char* filename)
     return mIsValid;
 }
 
-void TP1::checkFilename(const char* filename)
+void TP1::TP1::checkFilename(const char* filename)
 {
     std::ifstream fstr(filename, std::ios::in);
     
@@ -56,7 +56,7 @@ void TP1::checkFilename(const char* filename)
     }
 }
 
-void TP1::replaceTrigraphSequence()
+void TP1::TP1::replaceTrigraphSequence()
 {
     for(std::size_t pos = mSrc.find("??"); pos + 2 < mSrc.size() && pos != std::string::npos; pos = mSrc.find("??", pos))
     {
@@ -68,7 +68,7 @@ void TP1::replaceTrigraphSequence()
     }
 }
 
-void TP1::outputResult(const char* filename) const
+void TP1::TP1::outputResult(const char* filename) const
 {
     std::string resFilename = "res/tp1_";
     resFilename += std::to_string(NUM_EXEC);

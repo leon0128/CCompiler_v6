@@ -22,6 +22,9 @@ struct SCharSequence;
 struct SimpleEscapeSequence;
 struct StringLiteral;
 
+namespace TP3
+{
+
 class TP3
 {
 private:
@@ -64,3 +67,5 @@ private:
 
     bool mIsValid = true;
 };
+
+}

@@ -14,6 +14,9 @@ public:
 
     bool execute(int argc, char** argv);
 
+    static bool procPhase4(std::string& filename,
+                           std::vector<PreprocessingToken*>& res){}
+
 private:
     void checkArgs(int argc);
 
